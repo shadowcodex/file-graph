@@ -56,12 +56,20 @@ Standard markdown. Write whatever you want.
 | `name` | Human-readable display name for the node |
 | `description` | Short summary — this is what agents read first when deciding if a node is relevant |
 
-**Optional frontmatter fields:**
+**Recommended frontmatter fields:**
 
 | Field | Purpose |
 |-------|---------|
 | `explicit_edges` | Map of `path: edge_description` pairs defining typed relationships to other nodes |
-| anything else | Add whatever fields make sense for your use case — `status`, `author`, `created`, `priority`, etc. The spec doesn't care. |
+| `created_at` | ISO-8601 date when the node was first created (e.g., `"2026-04-08"`) |
+| `updated_at` | ISO-8601 date when the node was last modified (e.g., `"2026-04-08"`) |
+| `updated_by` | Who or what last modified the node — agent name, person, or process (e.g., `"analyst"`, `"linker"`, `"alice"`) |
+
+**Other optional frontmatter fields:**
+
+| Field | Purpose |
+|-------|---------|
+| anything else | Add whatever fields make sense for your use case — `status`, `priority`, etc. The spec doesn't care. |
 
 ---
 
@@ -166,12 +174,53 @@ Tags live inline in the content — deliberately *not* in frontmatter. Keeps thi
 
 ---
 
+### Sources
+
+Nodes should include a `## Sources` section listing the materials that informed the document. This makes every claim traceable and helps readers (human or agent) evaluate trustworthiness.
+
+```markdown
+## Sources
+
+- `src/api/handlers.py` — endpoint definitions and route structure
+- `docs/api-reference.md` — official API documentation
+- PROJ-1234 (Jira) — requirements for the v2 migration
+- https://docs.vendor.com/api — third-party API reference
+```
+
+Sources can be file paths, ticket IDs, URLs, or any other reference. Each entry should briefly describe what information was drawn from that source.
+
+Place the Sources section near the bottom of the document, before the Changelog.
+
+---
+
+### Changelog
+
+Nodes should include a `## Changelog` table at the very bottom of the document. This provides a running history of when the node was created and modified.
+
+```markdown
+## Changelog
+
+| Date | Author | Change |
+|------|--------|--------|
+| 2025-03-16 | alice | Added reproduction steps and linked blocker |
+| 2025-03-15 | analyst | Initial creation |
+```
+
+The most recent entry goes first. The `Date` column uses ISO-8601 format. The `Author` column matches the `updated_by` frontmatter field. The `Change` column is a brief description of what changed.
+
+On initial creation, the changelog has a single entry. Each subsequent modification adds a row.
+
+---
+
 ### Full Node Example
 
 ```markdown
 ---
 name: "Forms Validation Bug"
 description: "Validation fails silently on the new patient intake form when required fields are left empty"
+created_at: "2025-03-15"
+updated_at: "2025-03-16"
+updated_by: "alice"
 explicit_edges:
   "product/ui/available_forms.md": "Bug is in the patient intake form component"
   "people/engineers/alice.md": "Assigned to Alice for sprint 42"
@@ -192,6 +241,19 @@ This #bug in the #frontend is a #p0 — the new patient intake form doesn't show
 ## Notes
 
 Discussed in standup on 2025-03-15. Alice is picking this up after [[jira/issues/PROJ-400.md|PROJ-400]] lands.
+
+## Sources
+
+- `product/ui/available_forms.md` — form component inventory and validation logic
+- PROJ-399 (Jira) — original bug report from QA team
+- Standup notes 2025-03-15 — triage discussion and assignment
+
+## Changelog
+
+| Date | Author | Change |
+|------|--------|--------|
+| 2025-03-16 | alice | Added reproduction steps and linked blocker PROJ-400 |
+| 2025-03-15 | explorer | Initial creation from Jira triage |
 ```
 
 ---
